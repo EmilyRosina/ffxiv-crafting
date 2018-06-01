@@ -10,6 +10,14 @@
       <div>
         <img class="job-icon--inactive" v-for="(job, key) in jobs" :key="key" :src="job.src" :alt="`icon for ${job.src}`"/>
       </div>
+      <div>
+        <input v-model.trim="searchTerm" />
+      </div>
+      <div>
+        <ul class="recipe-list">
+          <li class="recipe" v-for="recipe in matchedRecipes" :key="recipe.id">{{ recipe.name }}</li>
+        </ul>
+      </div>
     </main>
     <footer class="footer">footer</footer>
   </div>
@@ -20,9 +28,40 @@
 
   export default {
     name: 'MainLayout',
+    data () {
+      return {
+        searchTerm: ''
+      }
+    },
     computed: {
+      searchTermOkay () {
+        return this.searchTerm.length >= 3
+      },
       jobs () {
         return jobIcons
+      },
+      matchedRecipes () {
+        if (this.searchTermOkay) {
+          console.log('YUP')
+          const recipes = this.$store.state.recipes
+          return Object.keys(this.$store.state.recipes)
+            .filter(recipeId => RegExp('\\b' + this.searchTerm.toLowerCase() + '\\b').test(recipes[recipeId].name.toLowerCase()))
+            .map(recipeId => { return { id: recipeId, name: recipes[recipeId].name } })
+        } else {
+          return null
+        }
+      }
+    },
+    watch: {
+      searchTerm (after, before) {
+        if (this.searchTermOkay) {
+          console.log('ooh changes!', before, after)
+          const recipes = this.$store.state.recipes
+          let matchedRecipes = Object.keys(this.$store.state.recipes)
+            .filter(recipeId => RegExp('\\b' + this.searchTerm.toLowerCase() + '\\b').test(recipes[recipeId].name.toLowerCase()))
+            .map(recipeId => { return { id: recipeId, name: recipes[recipeId].name } })
+          console.log('matchedRecipes', matchedRecipes)
+        }
       }
     }
   }
@@ -64,6 +103,7 @@
       background: darken($charcoal, 5);
       display: flex;
       flex-direction: column;
+      align-items: center;
     }
     .footer {
       background: darken($charcoal, 15);
@@ -73,6 +113,19 @@
   .job-icon {
     &--inactive {
       filter: grayscale(1);
+    }
+  }
+
+  .recipe {
+    color: #ddd;
+    padding: 0.25em 0.5em;
+    margin-bottom: 0.25em;
+    font-size: 0.75rem;
+    background-color: transparentize(#555, 0.5);
+    cursor: pointer;
+
+    &-list {
+      padding: 1em;
     }
   }
 </style>
