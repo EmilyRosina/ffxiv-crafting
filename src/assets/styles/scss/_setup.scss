@@ -1,7 +1,20 @@
 @import './vars';
 
+*, *:before, *:after {
+	box-sizing: border-box;
+}
+
 html, body, #app {
   width: 100%;
   min-height: 100vh;
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+a {
+  color: white;
+  text-decoration: none;
+
+  &:hover {
+    color: skyblue;
+  }
 }

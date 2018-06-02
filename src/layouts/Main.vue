@@ -16,9 +16,10 @@
       <div>
         <ul class="recipe-list">
           <li class="recipe" v-for="recipe in matchedRecipes" :key="recipe.id">
-            <a :href="recipe.url_xivdb" style="flex: 1 0 auto;" target="_blank" ref="noopener">{{ recipe.name }}</a>
+            <a class="recipe__link" :href="recipe.url_xivdb" style="flex: 1 0 auto;" target="_blank" ref="noopener">{{ recipe.name }}</a>
             <span>{{ recipe.item_level }} | {{ recipe.craft_level }} | {{ recipe.level_diff }}</span>
             <img class="job-icon--inactive" :src="recipe.job_icon" alt="job icon">
+            <img class="recipe__item-icon" :src="recipe.icon" alt="item icon" />
           </li>
         </ul>
       </div>
@@ -185,9 +186,18 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 400px;
 
     &-list {
       padding: 1em;
+    }
+    &__item-icon {
+      display: none;
+    }
+    &:hover {
+      .recipe__item-icon {
+        display: inline;
+      }
     }
   }
 </style>
