@@ -6,6 +6,7 @@ import router from './router'
 import store from './store'
 
 import '@/assets/styles/scss/index.scss'
+import '@/utils/plugins'
 import '@/utils/globalComponents'
 
 Vue.config.productionTip = true

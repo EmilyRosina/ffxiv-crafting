@@ -5,6 +5,7 @@
         <img class="header__logo" height="100%" src="@/assets/images/ffxiv-blue-logo.png" alt="final fantasy online logo" />
         <span class="header__logo__text">crafting</span>
       </div>
+      <a href="https://github.com/EmilyRosina/ffxiv-crafting" target="_blank" class="header__github"><icon name="brands/github" scale="1.5" /></a>
     </header>
     <main class="main">
       <div>
@@ -24,7 +25,7 @@
         </ul>
       </div>
     </main>
-    <footer class="footer">footer</footer>
+    <footer class="footer"></footer>
   </div>
 </template>
 
@@ -96,6 +97,8 @@
     .header {
       background: $charcoal;
       display: flex;
+      justify-content: space-between;
+      align-items: center;
 
       &__logo {
         padding: 0.5em;
@@ -116,6 +119,9 @@
           text-shadow: 0px 0px 4px magenta,
                        0px 0px 2px magenta;
         }
+      }
+      &__github {
+        padding: 1em;
       }
     }
     .main {
