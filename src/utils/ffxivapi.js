@@ -2,10 +2,11 @@
 const API_URI = 'https://api.xivdb.com'
 
 export default {
-  recipes: `${API_URI}/recipes`, // going to store via json (update manually occasionally)
-
+  getRecipes (searchTerms) {
+    return `${API_URI}/search?one=recipes&string=${searchTerms}`
+  },
   getRecipe (recipeId) {
-    return `${API_URI}/recipes/${recipeId}`
+    return `${API_URI}/recipe/${recipeId}`
     /*
       tree                  __array of items (ingredients)__
         id

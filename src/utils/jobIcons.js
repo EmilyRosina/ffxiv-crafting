@@ -27,4 +27,6 @@ export const gathering = {
   MIN: { name: 'mining', src: MIN }
 }
 
-export default Object.assign({}, crafting, gathering)
+export const all = Object.assign({}, crafting, gathering)
+
+export default all

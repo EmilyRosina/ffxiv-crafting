@@ -11,11 +11,15 @@
         <img class="job-icon--inactive" v-for="(job, key) in jobs" :key="key" :src="job.src" :alt="`icon for ${job.src}`"/>
       </div>
       <div>
-        <input v-model.trim="searchTerm" />
+        <input v-model.trim="searchTerm" @keydown.enter="fetchRecipes()"/>
       </div>
       <div>
         <ul class="recipe-list">
-          <li class="recipe" v-for="recipe in matchedRecipes" :key="recipe.id">{{ recipe.name }}</li>
+          <li class="recipe" v-for="recipe in matchedRecipes" :key="recipe.id">
+            <a :href="recipe.url_xivdb" style="flex: 1 0 auto;" target="_blank" ref="noopener">{{ recipe.name }}</a>
+            <span>{{ recipe.item_level }} | {{ recipe.craft_level }} | {{ recipe.level_diff }}</span>
+            <img class="job-icon--inactive" :src="recipe.job_icon" alt="job icon">
+          </li>
         </ul>
       </div>
     </main>
@@ -25,45 +29,100 @@
 
 <script>
   import jobIcons from '@/utils/jobIcons'
+  import { jobMap } from '@/utils/enums'
+  import api from '@/utils/ffxivapi'
+  import axios from 'axios'
+  import { mapState } from 'vuex'
 
   export default {
     name: 'MainLayout',
     data () {
       return {
-        searchTerm: ''
+        searchTerm: '',
+        matchedRecipes: [],
+        jobMap,
+        jobIcons
       }
     },
+    methods: {
+      fetchRecipes () {
+        axios.get(api.getRecipes(this.searchTermList))
+          .then(res => {
+            console.log(res)
+            let matchedRecipes = res.data.recipes.results
+              .map(recipe => {
+                let jobCode = this.jobMap[recipe.class_name]
+                console.log('jobCode', jobCode)
+                recipe['craft_level'] = recipe.level_view
+                recipe['item_level'] = recipe.level
+                delete recipe.level_view
+                delete recipe.level
+                return Object.assign({}, recipe, {
+                  is_crafted: recipe.class_name !== null,
+                  job_code: jobCode,
+                  job_icon: this.jobIcons[jobCode].src
+                })
+              })
+            this.matchedRecipes = matchedRecipes
+          })
+      }
+      // filterRecipes (recipes, searchTerms) {
+      //   console.log('filterRecipes - start')
+      //   console.log('filterRecipes - all recipes', Object.values(this.recipes))
+      //   console.log('filterRecipes - all recipes', Object.values(this.recipes)[3700])
+      //   console.log('filterRecipes - coat recipes', Object.values(this.recipes).filter(recipe => { return RegExp('/coat/gm').test(recipe.name) }))
+      //   let searchTerm = searchTerms.pop()
+      //   let count = 0
+      //   let x = recipes.filter(recipe => {
+      //     count++
+      //     /* searchTermList.forEach(searchTerm => {
+
+      //     }) */
+      //     return RegExp(searchTerm).test(recipe.name)
+      //   })
+      //   console.log('filterRecipes - all recipes - static value', count)
+      //   console.log('filterRecipes - after x', x)
+      //   if (searchTerms.length !== 0) {
+      //     return this.filterRecipes(x, searchTerms)
+      //   } else {
+      //     return x
+      //   }
+      // }
+    },
     computed: {
+      ...mapState([
+        'recipes'
+      ]),
+      totalMatchedRecipes () {
+        return this.matchedRecipes.length
+      },
       searchTermOkay () {
         return this.searchTerm.length >= 3
       },
       jobs () {
         return jobIcons
       },
-      matchedRecipes () {
-        if (this.searchTermOkay) {
-          console.log('YUP')
-          const recipes = this.$store.state.recipes
-          return Object.keys(this.$store.state.recipes)
-            .filter(recipeId => RegExp('\\b' + this.searchTerm.toLowerCase() + '\\b').test(recipes[recipeId].name.toLowerCase()))
-            .map(recipeId => { return { id: recipeId, name: recipes[recipeId].name } })
-        } else {
-          return null
-        }
+      searchTermList () {
+        return this.searchTerm.toLowerCase().split(' ').join(',')
       }
-    },
-    watch: {
-      searchTerm (after, before) {
-        if (this.searchTermOkay) {
-          console.log('ooh changes!', before, after)
-          const recipes = this.$store.state.recipes
-          let matchedRecipes = Object.keys(this.$store.state.recipes)
-            .filter(recipeId => RegExp('\\b' + this.searchTerm.toLowerCase() + '\\b').test(recipes[recipeId].name.toLowerCase()))
-            .map(recipeId => { return { id: recipeId, name: recipes[recipeId].name } })
-          console.log('matchedRecipes', matchedRecipes)
-        }
-      }
+      // matchedRecipes () {
+      //   if (!this.searchTermOkay) return null
+      //   const recipes = this.recipes
+      //   return this.filterRecipes(Object.values(recipes), this.searchTermList)
+      //   // return Object.values(recipes)
+      //   //   .filter(recipe => {
+      //   //     return this.searchTermList.every(searchTerm => RegExp(`\b[${searchTerm}]`).test(recipe.name.toLowerCase()))
+      //   //   })
+      //   //   .map(recipe => { return { id: recipe.id, name: recipe.name } })
+      // }
     }
+    // watch: {
+    //   searchTerm (after, before) {
+    //     if (this.searchTermOkay) {
+
+    //     }
+    //   }
+    // }
   }
 </script>
 
@@ -123,6 +182,9 @@
     font-size: 0.75rem;
     background-color: transparentize(#555, 0.5);
     cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     &-list {
       padding: 1em;
