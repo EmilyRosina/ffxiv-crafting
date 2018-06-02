@@ -12,7 +12,7 @@
         <img class="job-icon--inactive" v-for="(job, key) in jobs" :key="key" :src="job.src" :alt="`icon for ${job.src}`"/>
       </div>
       <div>
-        <input v-model.trim="searchTerm" @keydown.enter="fetchRecipes()"/>
+        <input v-model.trim="searchTerm" @keydown.enter="fetchRecipes()" />
       </div>
       <div>
         <ul class="recipe-list">
@@ -50,6 +50,7 @@
       fetchRecipes () {
         axios.get(api.getRecipes(this.searchTermList))
           .then(res => {
+            console.log(res.data.recipes)
             let matchedRecipes = res.data.recipes.results
               .map(recipe => {
                 let jobCode = this.jobMap[recipe.class_name]

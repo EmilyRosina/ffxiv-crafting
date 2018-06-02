@@ -8,7 +8,7 @@ export const jobMap = {
   CRP: 'carpentry',
   Carpenter: 'CRP',
   CUL: 'culinary',
-  Culinarian: 'CLN',
+  Culinarian: 'CUL',
   GSM: 'goldsmithing',
   Goldsmith: 'GSM',
   LTW: 'leatherworking',
