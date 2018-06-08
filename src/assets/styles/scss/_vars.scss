@@ -6,3 +6,34 @@
 }
 
 $charcoal: #333;
+$blue: #4aaeff;
+$pink: #ff6eff;
+
+$layers: (
+  uppermost: 100,
+  just-above: 2,
+  normal: 1,
+  hidden: -1
+);
+
+@mixin z-index ($layer) {
+  z-index: map-get($layers, $layer);
+}
+
+@keyframes to-show {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes to-hide {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* 5 seconds */
+@keyframes alert {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}
