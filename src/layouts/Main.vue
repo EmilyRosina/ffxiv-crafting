@@ -1,88 +1,147 @@
 <template>
   <div class="main-layout">
+
     <header class="header">
       <div class="header__logo__wrapper">
         <img class="header__logo" height="100%" src="@/assets/images/ffxiv-blue-logo.png" alt="final fantasy online logo" />
         <span class="header__logo__text">crafting</span>
       </div>
-      <a href="https://github.com/EmilyRosina/ffxiv-crafting" target="_blank" class="header__github"><icon name="brands/github" scale="1.5" /></a>
+
+      <a class="header__github" href="https://github.com/EmilyRosina/ffxiv-crafting" target="_blank" >
+        <icon name="brands/github" scale="1.5" />
+      </a>
+
+      <div class="header__favourites">
+        <img :src="favIcon" />
+      </div>
     </header>
+
     <main class="main">
-      <div>
-        <img class="job-icon--inactive" v-for="(job, key) in jobs" :key="key" :src="job.src" :alt="`icon for ${job.src}`"/>
+      <div class="search">
+        <input class="search__input" v-model.trim="searchTermInput" @keydown.enter="fetchRecipes()" />
+        <button class="search__button" @click="fetchRecipes()" :disabled="!searchTermOkay">search</button>
       </div>
-      <div>
-        <input v-model.trim="searchTerm" @keydown.enter="fetchRecipes()" />
+
+      <div class="filters">
+        <img
+          v-for="(job, key) in jobs"
+          :key="key"
+          :class="['job-icon', {'job-icon--selected': filterIsApplied(key)}, {'job-icon--in-results': jobInResults(key)}]"
+          @click="TOGGLE_FILTER(key)"
+          :src="job.src"
+          :alt="`icon for ${job.src}`"/>
+        <div class="ilevel" v-if="false">
+          <span class="ilevel__text">iLevel range</span>
+          <input class="ilevel__minmax" type="text" />
+          <span class="ilevel__text">-</span>
+          <input class="ilevel__minmax" type="text" />
+        </div>
       </div>
-      <div>
+
+      <div class="results">
+        <div class="results__error" v-if="show.error">no results found</div>
         <ul class="recipe-list">
           <li class="recipe" v-for="recipe in matchedRecipes" :key="recipe.id">
             <a class="recipe__link" :href="recipe.url_xivdb" style="flex: 1 0 auto;" target="_blank" ref="noopener">{{ recipe.name }}</a>
             <span>{{ recipe.item_level }} | {{ recipe.craft_level }} | {{ recipe.level_diff }}</span>
-            <img class="job-icon--inactive" :src="recipe.job_icon" alt="job icon">
-            <img class="recipe__item-icon" :src="recipe.icon" alt="item icon" />
+            <img
+              :class="['job-icon', {'job-icon--selected': filterIsApplied(recipe.job_code)}]"
+              @click="TOGGLE_FILTER(recipe.job_code)"
+              :src="recipe.job_icon"
+              alt="job icon" />
+            <img
+              class="recipe__item-icon"
+              :src="recipe.icon"
+              alt="item icon" />
           </li>
         </ul>
       </div>
     </main>
+
     <footer class="footer"></footer>
+
   </div>
 </template>
 
 <script>
+  import favIcon from '@/assets/images/favourite.png'
   import jobIcons from '@/utils/jobIcons'
   import { jobMap } from '@/utils/enums'
-  import api from '@/utils/ffxivapi'
-  import axios from 'axios'
-  import { mapState } from 'vuex'
+  import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
 
   export default {
     name: 'MainLayout',
     data () {
       return {
-        searchTerm: '',
-        matchedRecipes: [],
+        searchTermInput: '',
+        show: {
+          error: false
+        },
+        search: {
+          term: '',
+          ilevel: {
+            min: '',
+            max: ''
+          }
+        },
         jobMap,
-        jobIcons
+        jobIcons,
+        favIcon
       }
     },
     methods: {
+      ...mapActions([
+        'FETCH_RECIPES'
+      ]),
+      ...mapMutations([
+        'SET_SEARCHTERM',
+        'TOGGLE_FILTER',
+        'REMOVE_FILTER'
+      ]),
       fetchRecipes () {
-        axios.get(api.getRecipes(this.searchTermList))
-          .then(res => {
-            console.log(res.data.recipes)
-            let matchedRecipes = res.data.recipes.results
-              .map(recipe => {
-                let jobCode = this.jobMap[recipe.class_name]
-                recipe['craft_level'] = recipe.level_view
-                recipe['item_level'] = recipe.level
-                delete recipe.level_view
-                delete recipe.level
-                return Object.assign({}, recipe, {
-                  is_crafted: recipe.class_name !== null,
-                  job_code: jobCode,
-                  job_icon: this.jobIcons[jobCode].src
-                })
-              })
-            this.matchedRecipes = matchedRecipes
-          })
+        if (!this.matchedRecipes && this.searchTermOkay) {
+          this.FETCH_RECIPES({ searchTerm: this.searchTermInput, searchTermList: this.searchTermList })
+        }
+      },
+      filterIsApplied (jobCode) {
+        return this.filters[jobCode]
+      },
+      jobInResults (jobCode) {
+        return this.matchedJobs ? this.matchedJobs.includes(jobCode) : false
+      },
+      showError () {
+        this.show.error = true
+        setTimeout(() => {
+          this.show.error = false
+        }, 5000)
       }
     },
     computed: {
       ...mapState([
-        'recipes'
+        'recipes',
+        'searchTerm',
+        'filters'
+      ]),
+      ...mapGetters([
+        'matchedRecipes',
+        'matchedJobs'
       ]),
       totalMatchedRecipes () {
         return this.matchedRecipes.length
       },
       searchTermOkay () {
-        return this.searchTerm.length >= 3
+        return this.searchTermInput.length >= 3
       },
       jobs () {
         return jobIcons
       },
       searchTermList () {
-        return this.searchTerm.toLowerCase().split(' ').join(',')
+        return this.searchTermInput.toLowerCase().split(' ').join(',')
+      }
+    },
+    watch: {
+      searchTermInput (newVal, oldVal) {
+        this.SET_SEARCHTERM(newVal)
       }
     }
   }
@@ -91,7 +150,7 @@
 <style lang="scss" scoped>
   .main-layout {
     @extend %grid;
-    width: 100vw;
+    width: 100%;
     min-height: 100vh;
     grid-template-rows: 60px 1fr 30px;
 
@@ -100,6 +159,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative;
+      @include z-index('uppermost');
 
       &__logo {
         padding: 0.5em;
@@ -124,23 +185,155 @@
       &__github {
         padding: 1em;
       }
+      &__favourites {
+        position: absolute;
+        bottom: -65px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        left: 2.5em;
+        background: #1c1c1c;
+        padding: 0.1em 1.15em 1em 1.15em ;
+        border-bottom-left-radius: 100%;
+        border-bottom-right-radius: 100%;
+        cursor: pointer;
+      }
     }
     .main {
       background: darken($charcoal, 5);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      @extend %grid;
+      grid-template-columns: 20em minmax(400px, 1fr) minmax(0, 20em);
+      grid-template-rows: 2em 3em 3em 1fr;
+      grid-template-areas:
+        "sidebar . ."
+        "sidebar search ."
+        "sidebar filters ."
+        "sidebar results ."
+      ;
+
+      .search,
+      .results {
+        padding: 0 2em;
+      }
+
+      .search {
+        grid-area: search;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+
+        &__input {
+          width: 100%;
+          padding-right: 7em;
+        }
+        &__button {
+          transition: 0.5s;
+          opacity: 0.5;
+          cursor: pointer;
+          position: absolute;
+          right: 3.25em;
+          border-radius: 2em;
+          padding: 0.1em 1em;
+          outline: none;
+          border: 2px solid skyblue;
+          background: none;
+          color: skyblue;
+
+          &:hover {
+            opacity: 1;
+          }
+          &:disabled {
+            filter: grayscale(1);
+            opacity: 0.15;
+            cursor: not-allowed;
+          }
+        }
+      }
+      .filters {
+        grid-area: filters;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .job-icon {
+          cursor: pointer;
+          margin: 0.1em;
+          filter: grayscale(1);
+          opacity: 0.25;
+          transition: 0.5s;
+
+          &:hover {
+            opacity: 0.75;
+          }
+          &--in-results,
+          &--selected {
+            opacity: 1;
+            &:hover {
+              opacity: 1;
+            }
+          }
+          &--in-results {
+            filter: grayscale(0) hue-rotate(160deg);
+            background: #161616;
+          }
+          &--selected {
+            filter: grayscale(0) hue-rotate(0deg);
+          }
+        }
+        .ilevel {
+          display: flex;
+          align-items: center;
+          font-size: 10px;
+          color: #ddd;
+          background-color: #444;
+          padding: 0.5em;
+          border-radius: 0.25em;
+
+          &__text {
+            display: inline-block;
+            padding: 0 0.5em;
+          }
+          &__minmax {
+            height: auto;
+            padding: 0.25em;
+            border-radius: 1em;
+            width: 3em;
+            text-align: center;
+
+          }
+        }
+      }
+      .results {
+        grid-area: results;
+        display: flex;
+        flex-direction: column;
+
+        &__error {
+          display: inline-block;
+          align-self: center;
+          padding: 0.75em 3em;
+          background: transparentize(indianred, 0.65);
+          color: indianred;
+          margin: 1em;
+          animation: alert 5s infinite;
+        }
+        .job-icon {
+          cursor: pointer;
+          filter: hue-rotate(160deg);
+          &--selected {
+            filter: hue-rotate(0deg);
+          }
+        }
+      }
     }
     .footer {
       background: darken($charcoal, 15);
     }
   }
 
-  .job-icon {
-    &--inactive {
-      filter: grayscale(1);
-    }
-  }
+
 
   .recipe {
     color: #ddd;
@@ -152,17 +345,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 400px;
+    position: relative;
 
     &-list {
-      padding: 1em;
+      width: 100%;
     }
     &__item-icon {
       display: none;
     }
     &:hover {
       .recipe__item-icon {
-        display: inline;
+        position: absolute;
+        display: block;
+        left: -12em;
       }
     }
   }
