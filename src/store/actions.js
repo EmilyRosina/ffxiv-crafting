@@ -7,9 +7,7 @@ export default {
     const { searchTerm, searchTermList } = payload
     axios.get(api.getRecipes(searchTermList))
       .then(res => {
-        console.log('FETCH_RECIPES 1', res.data.recipes.results.length)
         let recipes = prepRecipes(res.data.recipes.results)
-        console.log('FETCH_RECIPES 2', recipes)
         return { searchTerm, recipes }
       })
       .then(res => {

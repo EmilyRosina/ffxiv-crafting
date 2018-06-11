@@ -13,6 +13,7 @@
 
       <div class="header__favourites">
         <img :src="favIcon" />
+        <div></div>
       </div>
     </header>
 
