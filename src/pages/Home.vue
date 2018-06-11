@@ -25,6 +25,7 @@
       <div class="results__error" v-if="show.error">no results found</div>
       <ul class="recipe-list">
         <li class="recipe" v-for="recipe in matchedRecipes" :key="recipe.id">
+          <img :src="favIcon" class="recipe__fav" />
           <a class="recipe__link" :href="recipe.url_xivdb" style="flex: 1 0 auto;" target="_blank" ref="noopener">{{ recipe.name }}</a>
           <span>{{ recipe.item_level }} | {{ recipe.craft_level }} | {{ recipe.level_diff }}</span>
           <img
@@ -43,6 +44,7 @@
 </template>
 
 <script>
+  import favIcon from '@/assets/images/favourite.png'
   import jobIcons from '@/utils/jobIcons'
   import { jobMap } from '@/utils/enums'
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
@@ -62,6 +64,7 @@
             max: ''
           }
         },
+        favIcon,
         jobMap,
         jobIcons
       }
@@ -280,6 +283,17 @@
     }
     &__item-icon {
       display: none;
+    }
+    &__fav {
+      height: 2em;
+      margin-right: 1em;
+      filter: grayscale(1);
+      opacity: 0.25;
+      &:hover,
+      &--saved {
+        filter: grayscale(0);
+        opacity: 1;
+      }
     }
 
   }
