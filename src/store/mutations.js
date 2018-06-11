@@ -28,10 +28,12 @@ export default {
     }
   },
   REMOVE_FAV_RECIPE (state, { recipe, searchTerm }) {
-    let index = state.recipes[searchTerm].indexOf(recipe)
-    recipe.is_fav = false
+    if (searchTerm) {
+      let index = state.recipes[searchTerm].indexOf(recipe)
+      recipe.is_fav = false
+      Vue.set(state.recipes[searchTerm], index, recipe)
+    }
     Vue.delete(state.savedRecipes, recipe.id)
-    Vue.set(state.recipes[searchTerm], index, recipe)
     let savedFav = JSON.parse(localStorage['ffxivc:fav-recipes'])
     delete savedFav[recipe.id]
     localStorage['ffxivc:fav-recipes'] = JSON.stringify(savedFav)

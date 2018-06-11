@@ -1,6 +1,6 @@
 <template>
-  <ul class="recipe-list">
-    <li class="recipe" v-for="recipe in matchedRecipes" :key="recipe.id">
+  <ul :class="[{'recipe-list': !mini}, {'recipe-list--fav': mini}]">
+    <li v-if="!mini" class="recipe" v-for="recipe in matchedRecipes" :key="recipe.id">
       <img :src="favIcon" :class="['recipe__fav', {'recipe__fav--saved': recipe.is_fav}]" @click="toggleFavRecipe(recipe)" />
       <a class="recipe__link" :href="recipe.url_xivdb" style="flex: 1 0 auto;" target="_blank" ref="noopener">{{ recipe.name }}</a>
       <span>{{ recipe.item_level }} | {{ recipe.craft_level }} | {{ recipe.level_diff }}</span>
@@ -14,6 +14,16 @@
         :src="recipe.icon"
         alt="item icon" />
     </li>
+
+    <li v-if="mini" class="recipe" v-for="recipe in matchedRecipes" :key="`fav--${recipe.id}`">
+      <a class="recipe__link" :href="recipe.url_xivdb" style="flex: 1 0 auto;" target="_blank" ref="noopener">{{ recipe.name }}</a>
+      <img
+        :class="['job-icon', {'job-icon--selected': filterIsApplied(recipe.job_code)}]"
+        @click="TOGGLE_FILTER(recipe.job_code)"
+        :src="recipe.job_icon"
+        alt="job icon" />
+      <icon name="times" class="remove" @click.native="toggleFavRecipe(recipe)"/>
+    </li>
   </ul>
 </template>
 
@@ -25,8 +35,13 @@
     name: 'RecipeList',
     props: {
       matchedRecipes: {
-        type: Array,
+        type: [Array, Object],
         required: true
+      },
+      mini: {
+        type: Boolean,
+        default: false,
+        required: false
       }
     },
     data () {
@@ -79,6 +94,32 @@
     }
     &-list {
       width: 100%;
+      &--fav {
+        position: absolute;
+        left: 0;
+        top: 125%;
+        display: block;
+        width: 250px;
+
+        .recipe {
+          padding: 0 1em;
+          border-radius: 1em;
+          height: 2.25em;
+          font-size: 0.7rem;
+          margin-bottom: 0.4em;
+          background-color: #1c1c1c;
+
+          .job-icon {
+            height: 2em;
+          }
+          .remove {
+            color: black;
+            &:hover {
+              color: indianred;
+            }
+          }
+        }
+      }
     }
     &__item-icon {
       display: none;

@@ -13,7 +13,7 @@
 
       <div class="header__favourites">
         <img :src="favIcon" />
-        <div></div>
+        <RecipeList :matchedRecipes="savedRecipes" v-if="hasFavRecipes" mini />
       </div>
     </header>
 
@@ -26,12 +26,25 @@
 
 <script>
   import favIcon from '@/assets/images/favourite.png'
+  import RecipeList from '@/components/RecipeList'
+  import { mapState } from 'vuex'
 
   export default {
     name: 'MainLayout',
+    components: {
+      RecipeList
+    },
     data () {
       return {
         favIcon
+      }
+    },
+    computed: {
+      ...mapState([
+        'savedRecipes'
+      ]),
+      hasFavRecipes () {
+        return Object.keys(this.savedRecipes).length > 0
       }
     }
   }
