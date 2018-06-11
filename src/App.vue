@@ -5,7 +5,17 @@
 </template>
 
 <script>
+  import { mapActions } from 'vuex'
+
   export default {
-    name: 'App'
+    name: 'App',
+    methods: {
+      ...mapActions([
+        'FETCH_FAV_RECIPES'
+      ])
+    },
+    created () {
+      this.FETCH_FAV_RECIPES()
+    }
   }
 </script>

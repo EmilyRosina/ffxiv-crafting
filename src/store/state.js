@@ -1,5 +1,5 @@
 export default {
-  savedRecipes: [], // [] or {} ?
+  savedRecipes: {},
   searchTerm: '',
   recipes: {},
   view: 'search', // search or favourites (or recipe ?)

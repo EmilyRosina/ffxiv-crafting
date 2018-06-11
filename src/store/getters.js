@@ -16,5 +16,8 @@ export default {
       })
       return jobs
     }
+  },
+  savedRecipeIds (state) {
+    return Object.keys(state.savedRecipes)
   }
 }

@@ -1,8 +1,8 @@
 <template>
   <main id="home-page">
     <div class="search">
-      <input class="search__input" v-model.trim="searchTermInput" @keydown.enter="fetchRecipes()" />
-      <button class="search__button" @click="fetchRecipes()" :disabled="!searchTermOkay">search</button>
+      <input class="search__input" v-model.trim="searchTermInput" @keydown="SET_SEARCHTERM(searchTermInput)" @keyup="fetchRecipes()" />
+      <button class="search__button" @mousedown="SET_SEARCHTERM(searchTermInput)" @mouseup="fetchRecipes()" :disabled="!searchTermOkay">search</button>
     </div>
 
     <div class="filters">
@@ -25,7 +25,7 @@
       <div class="results__error" v-if="show.error">no results found</div>
       <ul class="recipe-list">
         <li class="recipe" v-for="recipe in matchedRecipes" :key="recipe.id">
-          <img :src="favIcon" class="recipe__fav" />
+          <img :src="favIcon" :class="['recipe__fav', {'recipe__fav--saved': recipe.is_fav}]" @click="toggleFavRecipe(recipe)" />
           <a class="recipe__link" :href="recipe.url_xivdb" style="flex: 1 0 auto;" target="_blank" ref="noopener">{{ recipe.name }}</a>
           <span>{{ recipe.item_level }} | {{ recipe.craft_level }} | {{ recipe.level_diff }}</span>
           <img
@@ -76,7 +76,9 @@
       ...mapMutations([
         'SET_SEARCHTERM',
         'TOGGLE_FILTER',
-        'REMOVE_FILTER'
+        'REMOVE_FILTER',
+        'ADD_FAV_RECIPE',
+        'REMOVE_FAV_RECIPE'
       ]),
       fetchRecipes () {
         if (!this.matchedRecipes && this.searchTermOkay) {
@@ -93,15 +95,33 @@
         return this.matchedJobs ? this.matchedJobs.includes(jobCode) : false
       },
       showError () {
+        // TODO: implement this for use with search that returns nothing
+        // TODO: (optional) pull out into own component/mixin?
         this.show.error = true
         setTimeout(() => {
           this.show.error = false
         }, 5000)
+      },
+      toggleFavRecipe (recipe) {
+        if (recipe.is_fav) this.REMOVE_FAV_RECIPE({ recipe, searchTerm: this.searchTerm })
+        else this.ADD_FAV_RECIPE({ recipe, searchTerm: this.searchTerm })
+      },
+      recipeIsSaved (recipeId) {
+        this.savedRecipeIds.includes(recipeId)
       }
+
     },
     computed: {
-      ...mapState(['recipes', 'searchTerm', 'filters']),
-      ...mapGetters(['matchedRecipes', 'matchedJobs']),
+      ...mapState([
+        'recipes',
+        'searchTerm',
+        'filters'
+      ]),
+      ...mapGetters([
+        'matchedRecipes',
+        'matchedJobs',
+        'savedRecipeIds'
+      ]),
       totalMatchedRecipes () {
         return this.matchedRecipes.length
       },
@@ -117,12 +137,12 @@
           .split(' ')
           .join(',')
       }
-    },
-    watch: {
-      searchTermInput (newVal, oldVal) {
-        this.SET_SEARCHTERM(newVal)
-      }
     }
+    // watch: {
+    //   searchTermInput (newVal, oldVal) {
+    //     this.SET_SEARCHTERM(newVal)
+    //   }
+    // }
   }
 </script>
 
