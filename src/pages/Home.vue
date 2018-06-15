@@ -66,7 +66,7 @@
         'REMOVE_FILTER'
       ]),
       fetchRecipes () {
-        if (!this.matchedRecipes && this.searchTermOkay) {
+        if (!this.hasMatchedRecipes && this.searchTermOkay) {
           this.FETCH_RECIPES({
             searchTerm: this.searchTermInput,
             searchTermList: this.searchTermList
@@ -101,7 +101,7 @@
         'savedRecipeIds'
       ]),
       hasMatchedRecipes () {
-        return this.matchedRecipes !== undefined
+        return this.matchedRecipes.length > 0
       },
       searchTermOkay () {
         return this.searchTermInput.length >= 3
