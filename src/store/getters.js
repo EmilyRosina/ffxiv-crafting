@@ -1,6 +1,14 @@
 export default {
-  matchedRecipes (state) {
-    return state.recipes[state.searchTerm]
+  matchedRecipes (state, getters) {
+    if (!state.recipes[state.searchTerm]) return []
+    else if (getters.filtersAreActive) {
+      return state.recipes[state.searchTerm].filter(recipe => getters.activeFilters.includes(recipe.job_code))
+    } else {
+      return state.recipes[state.searchTerm]
+    }
+  },
+  activeFilters (state, getters) {
+    return getters.filtersAreActive ? Object.keys(state.filters).filter(key => state.filters[key] === true) : null
   },
   filtersAreActive (state) {
     return Object.values(state.filters).includes(true)
