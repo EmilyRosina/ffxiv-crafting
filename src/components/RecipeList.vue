@@ -2,9 +2,18 @@
   <ul :class="[{'recipe-list': !mini}, {'recipe-list--fav': mini}]">
 
     <!-- full -->
-    <li v-if="!mini" class="recipe-list__fetch-more">
-      <p :class="{'full': showingAllRecipes}">Showing {{ showingAllRecipes ? 'all' : recipesTotal.fetched }} from {{ recipesTotal.found }} found</p>
-      <span v-if="!showingAllRecipes" @click="fetchMoreRecipes()">Fetch more?</span>
+    <li v-if="!mini" class="recipe-list__results-info">
+      <p :class="['recipe-list__results-info__text', {'full': allRecipesFetched}]">
+        Showing <b :class="{'filtered': filtersAreActive}">{{ showingAllRecipes ? 'all' : filteredRecipesTotal }}</b>
+        <span v-if="filtersAreActive">
+          <i class="filtered" v-if="filtersAreActive">filtered</i>
+          from {{ showingAllRecipes ? `all ${recipesTotal.found}` : recipesTotal.fetched }} found
+        </span>
+        <span v-else>
+          from <b>{{ recipesTotal.found }}</b> found
+        </span>
+      </p>
+      <span class="recipe-list__results-info__fetch-more" v-if="!allRecipesFetched" @click="fetchMoreRecipes()">Fetch more?</span>
     </li>
     <li v-if="!mini" class="recipe" v-for="recipe in filteredRecipes" :key="recipe.id">
       <img :src="favIcon" :class="['recipe__fav', {'recipe__fav--saved': recipe.is_fav}]" @click="toggleFavRecipe(recipe)" />
@@ -16,10 +25,10 @@
         :src="recipe.job_icon"
         alt="job icon" />
       <figure class="recipe__item-icon">
-      <img
+        <img
           class="recipe__item-icon__img"
-        :src="recipe.icon"
-        alt="item icon" />
+          :src="recipe.icon"
+          alt="item icon" />
         <figcaption class="recipe__item-icon__caption">
           iLvl: {{ recipe.item_level }}
         </figcaption>
@@ -89,16 +98,22 @@
         'matchedRecipesTotal',
         'searchTermList',
         'filteredRecipes',
-        'matchedRecipes'
+        'matchedRecipes',
+        'filtersAreActive'
       ]),
-      recipesLength () {
+      filteredRecipesTotal () {
         return this.filteredRecipes.length
       },
       recipesTotal () {
         return this.matchedRecipesTotal
       },
-      showingAllRecipes () {
+      allRecipesFetched () {
         return this.recipesTotal.remaining === 0
+      },
+      showingAllRecipes () {
+        return this.filtersAreActive
+          ? this.recipesTotal.fetched === this.filteredRecipesTotal
+          : this.allRecipesFetched
       }
     }
   }
@@ -131,7 +146,7 @@
     &-list {
       width: 100%;
 
-      &__fetch-more {
+      &__results-info {
         @extend .recipe;
         padding: 1em;
         margin: 0.75em;
@@ -141,7 +156,10 @@
           width: 100%;
           text-align: center;
         }
-        span {
+        .filtered {
+          color: $pink;
+        }
+        &__fetch-more {
           color: #ccc;
           &:hover {
             color: $pink;
