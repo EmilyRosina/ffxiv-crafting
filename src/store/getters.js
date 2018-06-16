@@ -1,6 +1,9 @@
 export default {
-  hasRecipes (state) {
+  performedSearch (state) {
     return state.recipes[state.searchTerm] !== undefined
+  },
+  hasRecipes (state, getters) {
+    return getters.performedSearch && state.recipes[state.searchTerm].total.found !== 0
   },
   matchedRecipesTotal (state, getters) {
     return getters.hasRecipes ? state.recipes[state.searchTerm].total : {}

@@ -99,7 +99,8 @@
         'searchTermList',
         'filteredRecipes',
         'matchedRecipes',
-        'filtersAreActive'
+        'filtersAreActive',
+        'hasRecipes'
       ]),
       filteredRecipesTotal () {
         return this.filteredRecipes.length

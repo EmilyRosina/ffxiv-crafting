@@ -2,7 +2,20 @@
   <main id="home-page">
     <div class="search">
       <input class="search__input" v-model.trim="searchTermInput" @keydown.enter="SET_SEARCHTERM(searchTermInput)" @keyup.enter="fetchRecipes()" />
-      <button class="search__button" @mousedown="SET_SEARCHTERM(searchTermInput)" @mouseup="fetchRecipes()" :disabled="!searchTermOkay">search</button>
+      <button
+        class="search__button--no-results"
+        v-if="searchTermSubmitted && performedSearch && !hasRecipes">
+        no results
+      </button>
+      <button
+        v-else
+        class="search__button"
+        @mousedown="SET_SEARCHTERM(searchTermInput)"
+        @mouseup="fetchRecipes()"
+        :disabled="!searchTermOkay">
+        search
+      </button>
+      <span class="search__clear" @click="clearSearchTermInput">✕</span>
     </div>
 
     <div class="filters">
@@ -22,7 +35,6 @@
     </div>
 
     <div class="results">
-      <div class="results__error" v-if="show.error">no results found</div>
       <RecipeList :matchedRecipes="filteredRecipes" v-if="hasRecipes" />
     </div>
   </main>
@@ -79,15 +91,9 @@
       jobInResults (jobCode) {
         return this.matchedJobs ? this.matchedJobs.includes(jobCode) : false
       },
-      showError () {
-        // TODO: implement this for use with search that returns nothing
-        // TODO: (optional) pull out into own component/mixin?
-        this.show.error = true
-        setTimeout(() => {
-          this.show.error = false
-        }, 5000)
+      clearSearchTermInput () {
+        this.searchTermInput = ''
       }
-
     },
     computed: {
       ...mapState([
@@ -100,7 +106,9 @@
         'matchedRecipes',
         'filteredRecipes',
         'matchedJobs',
-        'savedRecipeIds'
+        'savedRecipeIds',
+        'performedSearch',
+        'searchTermList'
       ]),
       searchTermOkay () {
         return this.searchTermInput.length >= 3
@@ -108,11 +116,8 @@
       jobs () {
         return jobIcons
       },
-      searchTermList () {
-        return this.searchTermInput
-          .toLowerCase()
-          .split(' ')
-          .join(',')
+      searchTermSubmitted () {
+        return this.searchTermInput === this.searchTerm
       }
     }
   }
@@ -153,12 +158,18 @@
       width: 100%;
       padding-right: 7em;
     }
-    &__button {
+    &__button,
+    &__clear {
       transition: 0.5s;
-      opacity: 0.5;
       cursor: pointer;
       position: absolute;
-      right: 3.25em;
+      opacity: 0.5;
+      &:hover {
+        opacity: 1;
+      }
+    }
+    &__button {
+      right: 5em;
       border-radius: 2em;
       padding: 0.1em 1em;
       outline: none;
@@ -166,14 +177,20 @@
       background: none;
       color: skyblue;
 
-      &:hover {
-        opacity: 1;
+      &--no-results {
+        @extend .search__button;
+        border-color: indianred;
+        color: indianred;
       }
       &:disabled {
         filter: grayscale(1);
         opacity: 0.15;
         cursor: not-allowed;
       }
+    }
+    &__clear {
+      right: 2.75em;
+      color: #999;
     }
   }
   .filters {
