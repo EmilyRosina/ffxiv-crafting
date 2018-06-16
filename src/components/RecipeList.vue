@@ -9,16 +9,21 @@
     <li v-if="!mini" class="recipe" v-for="recipe in filteredRecipes" :key="recipe.id">
       <img :src="favIcon" :class="['recipe__fav', {'recipe__fav--saved': recipe.is_fav}]" @click="toggleFavRecipe(recipe)" />
       <a class="recipe__link" :href="recipe.url_xivdb" target="_blank" ref="noopener">{{ recipe.name }}</a>
-      <span>{{ recipe.item_level }} | {{ recipe.craft_level }} | {{ recipe.level_diff }}</span>
+      <span>{{ recipe.craft_level }}</span>
       <img
         :class="['job-icon', {'job-icon--selected': filterIsApplied(recipe.job_code)}]"
         @click="TOGGLE_FILTER(recipe.job_code)"
         :src="recipe.job_icon"
         alt="job icon" />
+      <figure class="recipe__item-icon">
       <img
-        class="recipe__item-icon"
+          class="recipe__item-icon__img"
         :src="recipe.icon"
         alt="item icon" />
+        <figcaption class="recipe__item-icon__caption">
+          iLvl: {{ recipe.item_level }}
+        </figcaption>
+      </figure>
     </li>
 
     <!-- mini -->
@@ -100,6 +105,7 @@
 </script>
 
 <style lang="scss" scoped>
+  // TODO: refactor all this SCSS, it's a mess!!
   .recipe {
     color: #ddd;
     padding: 0.25em 0.5em;
@@ -116,7 +122,10 @@
       .recipe__item-icon {
         position: absolute;
         display: block;
-        left: -12em;
+        right: -10em;
+        top: 0;
+        height: 9em;
+        width: 9em;
       }
     }
     &-list {
@@ -168,6 +177,19 @@
     }
     &__item-icon {
       display: none;
+
+      &__img {
+        height: 100%;
+        width: 100%;
+      }
+      &__caption {
+        margin-top: -2em;
+        margin-right: 1em;
+        text-align: right;
+        font-weight: 600;
+        text-shadow: 1px 1px 10px black,
+                     -1px -1px 4px black;
+      }
     }
     &__fav {
       height: 2em;
