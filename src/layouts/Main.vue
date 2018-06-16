@@ -13,7 +13,7 @@
 
       <div class="header__favourites">
         <img :src="favIcon" />
-        <RecipeList :matchedRecipes="savedRecipes" v-if="hasFavRecipes" mini />
+        <RecipeList v-if="hasFavRecipes" mini />
       </div>
     </header>
 

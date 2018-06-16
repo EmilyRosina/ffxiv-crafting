@@ -1,14 +1,24 @@
 export default {
+  hasRecipes (state) {
+    return state.recipes[state.searchTerm] !== undefined
+  },
+  matchedRecipesTotal (state, getters) {
+    return getters.hasRecipes ? state.recipes[state.searchTerm].total : {}
+  },
   matchedRecipes (state, getters) {
-    if (!state.recipes[state.searchTerm]) return []
-    else if (getters.filtersAreActive) {
-      return state.recipes[state.searchTerm].filter(recipe => getters.activeFilters.includes(recipe.job_code))
+    return getters.hasRecipes ? state.recipes[state.searchTerm].recipes : []
+  },
+  filteredRecipes (state, getters) {
+    if (getters.hasRecipes) {
+      return getters.filtersAreActive
+        ? getters.matchedRecipes.filter(recipe => getters.activeFilters.includes(recipe.job_code))
+        : getters.matchedRecipes
     } else {
-      return state.recipes[state.searchTerm]
+      return getters.matchedRecipes
     }
   },
   activeFilters (state, getters) {
-    return getters.filtersAreActive ? Object.keys(state.filters).filter(key => state.filters[key] === true) : null
+    return getters.filtersAreActive ? Object.keys(state.filters).filter(key => state.filters[key] === true) : []
   },
   filtersAreActive (state) {
     return Object.values(state.filters).includes(true)
@@ -27,5 +37,11 @@ export default {
   },
   savedRecipeIds (state) {
     return Object.keys(state.savedRecipes)
+  },
+  searchTermList (state) {
+    return state.searchTerm
+      .toLowerCase()
+      .split(' ')
+      .join(',')
   }
 }

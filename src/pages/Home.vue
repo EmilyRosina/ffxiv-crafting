@@ -23,7 +23,7 @@
 
     <div class="results">
       <div class="results__error" v-if="show.error">no results found</div>
-      <RecipeList :matchedRecipes="matchedRecipes" v-if="hasMatchedRecipes" />
+      <RecipeList :matchedRecipes="filteredRecipes" v-if="hasRecipes" />
     </div>
   </main>
 </template>
@@ -66,7 +66,7 @@
         'REMOVE_FILTER'
       ]),
       fetchRecipes () {
-        if (!this.hasMatchedRecipes && this.searchTermOkay) {
+        if (!this.hasRecipes && this.searchTermOkay) {
           this.FETCH_RECIPES({
             searchTerm: this.searchTermInput,
             searchTermList: this.searchTermList
@@ -96,13 +96,12 @@
         'filters'
       ]),
       ...mapGetters([
+        'hasRecipes',
         'matchedRecipes',
+        'filteredRecipes',
         'matchedJobs',
         'savedRecipeIds'
       ]),
-      hasMatchedRecipes () {
-        return this.matchedRecipes.length > 0
-      },
       searchTermOkay () {
         return this.searchTermInput.length >= 3
       },
@@ -116,11 +115,6 @@
           .join(',')
       }
     }
-    // watch: {
-    //   searchTermInput (newVal, oldVal) {
-    //     this.SET_SEARCHTERM(newVal)
-    //   }
-    // }
   }
 </script>
 

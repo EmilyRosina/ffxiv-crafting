@@ -9,8 +9,18 @@ function renameProperty (obj, origKey, newKey) {
   return obj
 }
 
-export function prepRecipes (recipes) {
-  recipes = recipes.map(recipe => {
+function setPaging (paging) {
+  let pages = {}
+  paging.pages.forEach(pageNo => {
+    pages[pageNo] = pageNo <= paging.page
+  })
+  pages.next = paging.next
+  return pages
+}
+
+export function prepRecipes (data, currentTotal) {
+  const { results, total, paging } = data
+  let recipes = results.map(recipe => {
     let savedRecipeIds = Object.keys(JSON.parse(localStorage['ffxivc:fav-recipes']))
     let jobCode = jobMap[recipe.class_name]
     let isFav = savedRecipeIds.includes(String(recipe.id))
@@ -27,7 +37,16 @@ export function prepRecipes (recipes) {
       }
     )
   })
-  return recipes
+  let _pages = setPaging(paging)
+  return {
+    recipes,
+    total: {
+      found: total,
+      fetched: currentTotal + recipes.length,
+      remaining: total - currentTotal - recipes.length,
+      _pages
+    }
+  }
 }
 
 export default {

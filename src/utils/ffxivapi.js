@@ -2,8 +2,9 @@
 const API_URI = 'https://api.xivdb.com'
 
 export default {
-  getRecipes (searchTerms) {
-    return `${API_URI}/search?one=recipes&string=${searchTerms}`
+  getRecipes ({ searchTermList, pageNo }) {
+    let optionalParams = pageNo ? `&page=${pageNo}` : ''
+    return `${API_URI}/search?one=recipes&string=${searchTermList}${optionalParams}`
   },
   getRecipe (recipeId) {
     return `${API_URI}/recipe/${recipeId}`
@@ -13,6 +14,7 @@ export default {
         icon
         name
         help                __description__
+        quantity
         kind_name
         level_item
         level_equip
@@ -26,5 +28,11 @@ export default {
         connect_shop        __isPurchasable__
 
     */
+  },
+  getItem (itemId) {
+    return `${API_URI}/item/${itemId}`
+  },
+  getGatheringInfo (gatheringId) {
+    return `${API_URI}/gathering/${gatheringId}`
   }
 }

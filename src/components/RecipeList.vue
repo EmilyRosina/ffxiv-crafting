@@ -1,8 +1,14 @@
 <template>
   <ul :class="[{'recipe-list': !mini}, {'recipe-list--fav': mini}]">
-    <li v-if="!mini" class="recipe" v-for="recipe in matchedRecipes" :key="recipe.id">
+
+    <!-- full -->
+    <li v-if="!mini" class="recipe-list__fetch-more">
+      <p :class="{'full': showingAllRecipes}">Showing {{ showingAllRecipes ? 'all' : recipesTotal.fetched }} from {{ recipesTotal.found }} found</p>
+      <span v-if="!showingAllRecipes" @click="fetchMoreRecipes()">Fetch more?</span>
+    </li>
+    <li v-if="!mini" class="recipe" v-for="recipe in filteredRecipes" :key="recipe.id">
       <img :src="favIcon" :class="['recipe__fav', {'recipe__fav--saved': recipe.is_fav}]" @click="toggleFavRecipe(recipe)" />
-      <a class="recipe__link" :href="recipe.url_xivdb" style="flex: 1 0 auto;" target="_blank" ref="noopener">{{ recipe.name }}</a>
+      <a class="recipe__link" :href="recipe.url_xivdb" target="_blank" ref="noopener">{{ recipe.name }}</a>
       <span>{{ recipe.item_level }} | {{ recipe.craft_level }} | {{ recipe.level_diff }}</span>
       <img
         :class="['job-icon', {'job-icon--selected': filterIsApplied(recipe.job_code)}]"
@@ -15,8 +21,9 @@
         alt="item icon" />
     </li>
 
-    <li v-if="mini" class="recipe" v-for="recipe in matchedRecipes" :key="`fav--${recipe.id}`">
-      <a class="recipe__link" :href="recipe.url_xivdb" style="flex: 1 0 auto;" target="_blank" ref="noopener">{{ recipe.name }}</a>
+    <!-- mini -->
+    <li v-if="mini" class="recipe" v-for="recipe in favRecipes" :key="`fav--${recipe.id}`">
+      <a class="recipe__link" :href="recipe.url_xivdb" target="_blank" ref="noopener">{{ recipe.name }}</a>
       <img
         :class="['job-icon', {'job-icon--selected': filterIsApplied(recipe.job_code)}]"
         @click="TOGGLE_FILTER(recipe.job_code)"
@@ -24,23 +31,19 @@
         alt="job icon" />
       <icon name="times" class="remove" @click.native="toggleFavRecipe(recipe)"/>
     </li>
+
   </ul>
 </template>
 
 <script>
   import favIcon from '@/assets/images/favourite.png'
-  import { mapState, mapMutations } from 'vuex'
+  import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 
   export default {
     name: 'RecipeList',
     props: {
-      matchedRecipes: {
-        type: [Array, Object],
-        required: true
-      },
       mini: {
         type: Boolean,
-        default: false,
         required: false
       }
     },
@@ -50,11 +53,19 @@
       }
     },
     methods: {
+      ...mapActions([
+        'FETCH_RECIPES'
+      ]),
       ...mapMutations([
         'TOGGLE_FILTER',
         'ADD_FAV_RECIPE',
         'REMOVE_FAV_RECIPE'
       ]),
+      fetchMoreRecipes () {
+        let pageNo = this.recipesTotal._pages.next
+        let { searchTerm, searchTermList } = this
+        this.FETCH_RECIPES({ searchTerm, searchTermList, pageNo })
+      },
       filterIsApplied (jobCode) {
         return this.filters[jobCode]
       },
@@ -64,10 +75,26 @@
       }
     },
     computed: {
-      ...mapState([
-        'filters',
-        'searchTerm'
-      ])
+      ...mapState({
+        filters: 'filters',
+        searchTerm: 'searchTerm',
+        favRecipes: 'savedRecipes'
+      }),
+      ...mapGetters([
+        'matchedRecipesTotal',
+        'searchTermList',
+        'filteredRecipes',
+        'matchedRecipes'
+      ]),
+      recipesLength () {
+        return this.filteredRecipes.length
+      },
+      recipesTotal () {
+        return this.matchedRecipesTotal
+      },
+      showingAllRecipes () {
+        return this.recipesTotal.remaining === 0
+      }
     }
   }
 </script>
@@ -94,6 +121,24 @@
     }
     &-list {
       width: 100%;
+
+      &__fetch-more {
+        @extend .recipe;
+        padding: 1em;
+        margin: 0.75em;
+        background: #1c1c1c;
+        color: $blue;
+        .full {
+          width: 100%;
+          text-align: center;
+        }
+        span {
+          color: #ccc;
+          &:hover {
+            color: $pink;
+          }
+        }
+      }
       &--fav {
         position: absolute;
         left: 0;
@@ -134,6 +179,9 @@
         filter: grayscale(0);
         opacity: 1;
       }
+    }
+    &__link {
+      flex: 1 0 auto;
     }
   }
   .job-icon {
