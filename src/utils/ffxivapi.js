@@ -2,9 +2,12 @@
 const API_URI = 'https://api.xivdb.com'
 
 export default {
-  getRecipes ({ searchTermList, pageNo }) {
-    let optionalParams = pageNo ? `&page=${pageNo}` : ''
-    return `${API_URI}/search?one=recipes&string=${searchTermList}${optionalParams}`
+  getRecipes ({ searchTermList, pageNo, craftLevel }) {
+    let optionalParams = ''
+    optionalParams += pageNo ? `&page=${pageNo}` : ''
+    optionalParams += craftLevel ? `&level_view|lt=${craftLevel + 1}` : ''
+
+    return `${API_URI}/search?one=recipes&order_field=level_view&string=${searchTermList}${optionalParams}`
   },
   getRecipe (recipeId) {
     return `${API_URI}/recipe/${recipeId}`
