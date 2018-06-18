@@ -11,7 +11,7 @@
         <icon name="brands/github" scale="1.5" />
       </a>
 
-      <div class="header__favourites">
+      <div class="header__favourites" v-if="false">
         <img :src="favIcon" />
         <RecipeList v-if="hasFavRecipes" mini />
       </div>
