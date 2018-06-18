@@ -7,10 +7,10 @@
         Showing <b :class="{'filtered': filtersAreActive}">{{ showingAllRecipes ? 'all' : filteredRecipesTotal }}</b>
         <span v-if="filtersAreActive">
           <i class="filtered" v-if="filtersAreActive">filtered</i>
-          from {{ showingAllRecipes ? `all ${recipesTotal.found}` : recipesTotal.fetched }} found
+          from <b>{{ allRecipesFetched ? `all ${recipesTotal.found}` : recipesTotal.fetched }}</b> found
         </span>
         <span v-else>
-          from <b>{{ recipesTotal.found }}</b> found
+          from <b>{{ allRecipesFetched ? recipesTotal.fetched : recipesTotal.found }}</b> found
         </span>
       </p>
       <span class="recipe-list__results-info__fetch-more" v-if="!allRecipesFetched" @click="fetchMoreRecipes()">Fetch more?</span>
