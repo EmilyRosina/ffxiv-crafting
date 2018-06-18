@@ -53,7 +53,7 @@
 <style lang="scss" scoped>
   .main-layout {
     @extend %grid;
-    width: 100%;
+    @extend %full-width;
     min-height: 100vh;
     grid-template-rows: 60px 1fr 30px;
 
@@ -106,6 +106,8 @@
     .main {
       background: darken($charcoal, 5);
       @extend %grid;
+      @extend %full-width;
+      padding: 1em;
       /* grid-template-columns,
       /* grid-template-rows,
       /* grid-template-areas

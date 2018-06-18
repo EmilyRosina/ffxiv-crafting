@@ -1,12 +1,11 @@
-@import './vars';
+@import './_vars';
 
 *, *:before, *:after {
 	box-sizing: border-box;
 }
 
 html, body, #app {
-  width: 100%;
-  max-width: 100vw;
+  @extend %full-width;
   overflow-x: hidden;
   min-height: 100vh;
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;

@@ -4,6 +4,10 @@
     display: inline-grid;
   }
 }
+%full-width {
+  width: 100%; // older browsers
+  width: 100vw;
+}
 
 $charcoal: #333;
 $blue: #4aaeff;
