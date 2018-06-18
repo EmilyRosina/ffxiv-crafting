@@ -58,11 +58,10 @@
     grid-template-rows: 60px 1fr 30px;
 
     .header {
+      @extend %full-width;
       background: $charcoal;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       position: relative;
+      @include setFlex($align-items: center, $justify: space-between);
       @include z-index('uppermost');
 
       &__logo {
@@ -91,22 +90,19 @@
       &__favourites {
         position: absolute;
         bottom: -65px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
         left: 2.5em;
         background: #1c1c1c;
         padding: 0.1em 1.15em 1em 1.15em ;
         border-bottom-left-radius: 100%;
         border-bottom-right-radius: 100%;
         cursor: pointer;
+        @include setFlex($direction: column, $align-items: center, $justify: center);
       }
     }
     .main {
-      background: darken($charcoal, 5);
       @extend %grid;
       @extend %full-width;
+      background: darken($charcoal, 5);
       padding: 1em;
       /* grid-template-columns,
       /* grid-template-rows,
@@ -114,6 +110,7 @@
           designated by xxxPage.vue */
     }
     .footer {
+      @extend %full-width;
       background: darken($charcoal, 15);
     }
   }
