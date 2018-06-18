@@ -4,13 +4,10 @@ import { prepRecipes } from '@/utils/objConfig'
 
 export default {
   FETCH_RECIPES ({ getters, commit }, payload) {
-    console.log('FETCH_RECIPES -- start', payload)
     const { searchTerm, searchTermList, pageNo } = payload
     const currentTotal = getters.matchedRecipesTotal.fetched ? getters.matchedRecipesTotal.fetched : 0
     axios.get(api.getRecipes({searchTermList, pageNo}))
       .then(res => {
-        console.log('FETCH_RECIPES', res.data)
-        // let recipes = prepRecipes(res.data.recipes.results)
         let recipes = prepRecipes(res.data.recipes, currentTotal)
         return { searchTerm, recipes }
       })
