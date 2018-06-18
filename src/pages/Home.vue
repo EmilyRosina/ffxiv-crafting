@@ -162,6 +162,9 @@
         ". results ."
       ;
     }
+    .filters .job-icon {
+      padding: 0 0.25em;
+    }
   }
   /* [GRID AREAS] */
   @include setGridAreas(search, filters, results);
