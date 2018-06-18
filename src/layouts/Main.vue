@@ -17,11 +17,6 @@
           <icon name="brands/github" scale="1.5" />
         </a>
       </div>
-
-      <div class="header__favourites" v-if="false">
-        <img :src="favIcon" />
-        <RecipeList v-if="hasFavRecipes" mini />
-      </div>
     </header>
 
     <router-view class="main"/>
@@ -140,17 +135,6 @@
           color: $pink;
           margin-right: 0.35em;
         }
-        // &__favourites {
-        //   position: absolute;
-        //   bottom: -65px;
-        //   left: 2.5em;
-        //   background: #1c1c1c;
-        //   padding: 0.1em 1.15em 1em 1.15em ;
-        //   border-bottom-left-radius: 100%;
-        //   border-bottom-right-radius: 100%;
-        //   cursor: pointer;
-        //   @include setFlex($direction: column, $align-items: center, $justify: center);
-        // }
       }
     }
     .main {
