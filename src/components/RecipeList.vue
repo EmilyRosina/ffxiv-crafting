@@ -16,7 +16,11 @@
       <span class="recipe-list__results-info__fetch-more" v-if="!allRecipesFetched" @click="fetchMoreRecipes()">Fetch more?</span>
     </li>
     <li v-if="!mini" class="recipe" v-for="recipe in filteredRecipes" :key="recipe.id">
-      <img :src="favIcon" :class="['recipe__fav', {'recipe__fav--saved': recipe.is_fav}]" @click="toggleFavRecipe(recipe)" />
+      <img
+        :src="favIcon"
+        :class="['recipe__fav', {'recipe__fav--saved': recipe.is_fav}]"
+        @click="toggleFavRecipe(recipe)"
+        alt="saved recipe icon" />
       <a class="recipe__link" :href="recipe.url_xivdb" target="_blank" ref="noopener">{{ recipe.name }}</a>
       <span>{{ recipe.craft_level }}</span>
       <img

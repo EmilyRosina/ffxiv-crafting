@@ -7,7 +7,7 @@
         <span class="header__logo__text">crafting</span>
       </div>
 
-      <a class="header__github" href="https://github.com/EmilyRosina/ffxiv-crafting" target="_blank" >
+      <a class="header__github" href="https://github.com/EmilyRosina/ffxiv-crafting" target="_blank" rel="noopener">
         <icon name="brands/github" scale="1.5" />
       </a>
 
