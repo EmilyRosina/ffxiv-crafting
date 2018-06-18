@@ -1,8 +1,8 @@
 <template>
-  <ul :class="[{'recipe-list': !mini}, {'recipe-list--fav': mini}]">
+  <ul :class="[{'recipe-list': !fav}, {'recipe-list--fav': fav}]">
 
     <!-- full -->
-    <li v-if="!mini" class="recipe-list__results-info">
+    <li v-if="!fav" class="recipe-list__results-info">
       <p :class="['recipe-list__results-info__text', {'full': allRecipesFetched}]">
         Showing <b :class="{'filtered': filtersAreActive}">{{ showingAllRecipes ? 'all' : filteredRecipesTotal }}</b>
         <span v-if="filtersAreActive">
@@ -15,7 +15,7 @@
       </p>
       <span class="recipe-list__results-info__fetch-more" v-if="!allRecipesFetched" @click="fetchMoreRecipes()">Fetch more?</span>
     </li>
-    <li v-if="!mini" class="recipe" v-for="recipe in filteredRecipes" :key="recipe.id">
+    <li v-if="!fav" class="recipe" v-for="recipe in filteredRecipes" :key="recipe.id">
       <img
         :src="favIcon"
         :class="['recipe__fav', {'recipe__fav--saved': recipe.is_fav}]"
@@ -39,15 +39,25 @@
       </figure>
     </li>
 
-    <!-- mini -->
-    <li v-if="mini" class="recipe" v-for="recipe in favRecipes" :key="`fav--${recipe.id}`">
+    <!-- fav -->
+    <li v-if="fav" class="recipe" v-for="recipe in favRecipes" :key="`fav--${recipe.id}`">
       <a class="recipe__link" :href="recipe.url_xivdb" target="_blank" ref="noopener">{{ recipe.name }}</a>
+      <span>{{ recipe.craft_level }}</span>
       <img
         :class="['job-icon', {'job-icon--selected': filterIsApplied(recipe.job_code)}]"
         @click="TOGGLE_FILTER(recipe.job_code)"
         :src="recipe.job_icon"
         alt="job icon" />
       <icon name="times" class="remove" @click.native="toggleFavRecipe(recipe)"/>
+      <figure class="recipe__item-icon">
+        <img
+          class="recipe__item-icon__img"
+          :src="recipe.icon"
+          alt="item icon" />
+        <figcaption class="recipe__item-icon__caption">
+          iLvl: {{ recipe.item_level }}
+        </figcaption>
+      </figure>
     </li>
 
   </ul>
@@ -60,7 +70,7 @@
   export default {
     name: 'RecipeList',
     props: {
-      mini: {
+      fav: {
         type: Boolean,
         required: false
       }
@@ -93,19 +103,27 @@
       }
     },
     computed: {
-      ...mapState({
-        filters: 'filters',
-        searchTerm: 'searchTerm',
-        favRecipes: 'savedRecipes'
-      }),
+      ...mapState([
+        'filters',
+        'searchTerm',
+        'savedRecipes'
+      ]),
       ...mapGetters([
         'matchedRecipesTotal',
         'searchTermList',
         'filteredRecipes',
         'matchedRecipes',
         'filtersAreActive',
-        'hasRecipes'
+        'savedRecipeIds',
+        'hasRecipes',
+        'hasFavRecipes'
       ]),
+      favRecipes () {
+        if (!this.hasFavRecipes) return []
+        else {
+          return this.savedRecipeIds.map(recipeId => this.savedRecipes[recipeId])
+        }
+      },
       filteredRecipesTotal () {
         return this.filteredRecipes.length
       },
@@ -171,32 +189,32 @@
           }
         }
       }
-      &--fav {
-        position: absolute;
-        left: 0;
-        top: 125%;
-        display: block;
-        width: 250px;
+      // &--fav {
+      //   position: absolute;
+      //   left: 0;
+      //   top: 125%;
+      //   display: block;
+      //   width: 250px;
 
-        .recipe {
-          padding: 0 1em;
-          border-radius: 1em;
-          height: 2.25em;
-          font-size: 0.7rem;
-          margin-bottom: 0.4em;
-          background-color: #1c1c1c;
+      //   .recipe {
+      //     padding: 0 1em;
+      //     border-radius: 1em;
+      //     height: 2.25em;
+      //     font-size: 0.7rem;
+      //     margin-bottom: 0.4em;
+      //     background-color: #1c1c1c;
 
-          .job-icon {
-            height: 2em;
-          }
-          .remove {
-            color: black;
-            &:hover {
-              color: indianred;
-            }
-          }
-        }
-      }
+      //     .job-icon {
+      //       height: 2em;
+      //     }
+      //     .remove {
+      //       color: black;
+      //       &:hover {
+      //         color: indianred;
+      //       }
+      //     }
+      //   }
+      // }
     }
     &__item-icon {
       display: none;

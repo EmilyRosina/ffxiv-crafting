@@ -1,42 +1,52 @@
 <template>
   <main id="home-page">
-    <section class="search">
-      <input class="search__input" v-model.trim="searchTermInput" @keydown.enter="SET_SEARCHTERM(searchTermInput)" @keyup.enter="fetchRecipes()" />
-      <div class="search__controls">
-        <button class="search__controls__button--no-results"
-          v-if="searchTermSubmitted && performedSearch && !hasRecipes">
-          no results
-        </button>
-        <button class="search__controls__button"
-          v-else
-          @mousedown="SET_SEARCHTERM(searchTermInput)"
-          @mouseup="fetchRecipes()"
-          :disabled="!searchTermOkay">
-          search
-        </button>
-        <span class="search__controls__clear" @click="clearSearchTermInput">✕</span>
-      </div>
-    </section>
+    <template v-if="show.search">
+      <section class="search">
+        <input class="search__input" v-model.trim="searchTermInput" @keydown.enter="SET_SEARCHTERM(searchTermInput)" @keyup.enter="fetchRecipes()" />
+        <div class="search__controls">
+          <button class="search__controls__button--no-results"
+            v-if="searchTermSubmitted && performedSearch && !hasRecipes">
+            no results
+          </button>
+          <button class="search__controls__button"
+            v-else
+            @mousedown="SET_SEARCHTERM(searchTermInput)"
+            @mouseup="fetchRecipes()"
+            :disabled="!searchTermOkay">
+            search
+          </button>
+          <span class="search__controls__clear" @click="clearSearchTermInput">✕</span>
+        </div>
+      </section>
 
-    <section class="filters">
-      <img
-        v-for="(job, key) in jobs"
-        :key="key"
-        :class="['job-icon', {'job-icon--selected': filterIsApplied(key)}, {'job-icon--in-results': jobInResults(key)}]"
-        @click="TOGGLE_FILTER(key)"
-        :src="job.src"
-        :alt="`icon for ${job.src}`" />
-      <div class="ilevel" v-if="false">
-        <span class="ilevel__text">iLevel range</span>
-        <input class="ilevel__minmax" type="text" />
-        <span class="ilevel__text">-</span>
-        <input class="ilevel__minmax" type="text" />
-      </div>
-    </section>
+      <section class="filters">
+        <img
+          v-for="(job, key) in jobs"
+          :key="key"
+          :class="['job-icon', {'job-icon--selected': filterIsApplied(key)}, {'job-icon--in-results': jobInResults(key)}]"
+          @click="TOGGLE_FILTER(key)"
+          :src="job.src"
+          :alt="`icon for ${job.src}`" />
+        <div class="ilevel" v-if="false">
+          <span class="ilevel__text">iLevel range</span>
+          <input class="ilevel__minmax" type="text" />
+          <span class="ilevel__text">-</span>
+          <input class="ilevel__minmax" type="text" />
+        </div>
+      </section>
 
-    <section class="results">
-      <RecipeList :matchedRecipes="filteredRecipes" v-if="hasRecipes" />
-    </section>
+      <section class="results">
+        <RecipeList :matchedRecipes="filteredRecipes" v-if="hasRecipes" />
+      </section>
+    </template>
+    <template v-if="show.favourites">
+      <section class="search">
+        <h1>Favourites</h1>
+      </section>
+      <section class="results">
+        <RecipeList fav v-if="hasFavRecipes" />
+      </section>
+    </template>
   </main>
 </template>
 
@@ -55,9 +65,9 @@
       // TODO: refactor or remove unused data props
       return {
         searchTermInput: '',
-        show: {
-          error: false
-        },
+        // show: {
+        //   error: false
+        // },
         search: {
           term: '',
           ilevel: {
@@ -100,7 +110,9 @@
       ...mapState([
         'recipes',
         'searchTerm',
-        'filters'
+        'filters',
+        'view',
+        'savedRecipes'
       ]),
       ...mapGetters([
         'hasRecipes',
@@ -109,7 +121,8 @@
         'matchedJobs',
         'savedRecipeIds',
         'performedSearch',
-        'searchTermList'
+        'searchTermList',
+        'hasFavRecipes'
       ]),
       searchTermOkay () {
         return this.searchTermInput.length >= 3
@@ -119,6 +132,12 @@
       },
       searchTermSubmitted () {
         return this.searchTermInput === this.searchTerm
+      },
+      show () {
+        return {
+          search: this.view === 'search',
+          favourites: this.view === 'favourites'
+        }
       }
     }
   }

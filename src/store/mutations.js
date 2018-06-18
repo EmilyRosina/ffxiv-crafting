@@ -42,5 +42,8 @@ export default {
     let savedFav = JSON.parse(localStorage['ffxivc:fav-recipes'])
     delete savedFav[recipe.id]
     localStorage['ffxivc:fav-recipes'] = JSON.stringify(savedFav)
+  },
+  SET_VIEW (state, view) {
+    state.view = view
   }
 }
